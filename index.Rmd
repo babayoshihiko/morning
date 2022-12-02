@@ -1,0 +1,159 @@
+--- 
+title: "Good Morning! RStudio"
+author: "Yoshihiko Baba"
+date: "`r Sys.Date()`"
+cover-image: Coverpage.png
+site: bookdown::bookdown_site
+documentclass: book
+# bibliography: [book.bib, packages.bib]
+# url: your book url like https://bookdown.org/yihui/bookdown
+# cover-image: path to the social sharing image like images/cover.jpg
+description: RStudio を使って、グラフを描くプログラミングを学びたい初学者向け教材です。出てくるグラフは、統計検定４級程度としています。小・中学生でも使えるように、数式は極力避け、英語によるメッセージの解説などもなるべくするようにしています。変数やデータフレームが分かりやすいように工夫をしています。
+link-citations: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(ggplot2)
+library(grid)
+library(magick)
+library(knitr)
+library(DT)
+library(readxl)
+library(ggsci)
+library(readxl)
+library(crosstable)
+library(gmodels)
+library(tableone)
+library(rpivotTable)
+library(curl)
+library(tidyr)
+library(GGally)
+library(reactablefmtr)
+library(reactable)
+library(webr)
+
+rm(list=ls())
+```
+
+<div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+2022年11月28日 Version 0.1 発行
+
+Copyright &copy;  2022 馬場美彦
+
+All rights reserved.
+
+</div><div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+<table>
+<tr><td>著者</td><td>馬場美彦（ばばよしひこ）</td></tr>
+<tr><td>発行</td><td>オンライン</td></tr>
+</table>
+
+</div>
+
+\newpage
+
+# はじめに {-}
+
+本書を書いている時点（2022年12月）は、<ruby><rb>情報技術</rb><rp>（</rp><rt>じょうほうぎじゅつ</rt><rp>）</rp></ruby>がどんどん社会を変えている時代です。本書も、RStudio で<ruby><rb>原稿</rb><rp>（</rp><rt>げんこう</rt><rp>）</rp></ruby>を作成しています。
+
+筆者が小・中学生だった1980年代に<ruby><rb>比</rb><rp>（</rp><rt>くら</rt><rp>）</rp></ruby>べると、プログラミング環境はだいぶ進歩しています。ところが、1980年代は、実は子ども向けのプログラミング本がたくさん出ていました。また、「マイコンBASICマガジン」という毎月300円代で買うことができた<ruby><rb>雑誌</rb><rp>（</rp><rt>ざっし</rt><rp>）</rp></ruby>では、読者が<ruby><rb>投稿</rb><rp>（</rp><rt>とうこう</rt><rp>）</rp></ruby>したプログラムのソースコードが丸々<ruby><rb>掲載</rb><rp>（</rp><rt>けいさい</rt><rp>）</rp></ruby>されて、何十分もかけてソースコードを打ち<ruby><rb>込</rb><rp>（</rp><rt>こ</rt><rp>）</rp></ruby>んでいました。今、こういった子ども向けのプログラミングの雑誌や本は少なくなったようです。子ども向けのプログラミング教材の多くはゲーム作りであったり、特殊なハードウェアを使ったり、子ども用のプログラミング言語を使ったものが多くなり、実際に使われているプログラミングと異なっています。
+
+本書は、RStudio.cloud を使って、グラフを<ruby><rb>描</rb><rp>（</rp><rt>えがく</rt><rp>）</rp></ruby>くためのプログラミング初学者向け教科書です。小・中学生でも使えるように、数式などの難しい計算はせず、英語によるメッセージの解説などもなるべくするようにしています。ただし、小・中学生に限定するものではありません。実際、本書を作成する際に勉強会を参加しましたが、ここに集まったのは大学院の学生やエンジニアなどです。多くの参加者はプログラミング初心者で、変数やデータフレームが分かりやすいように工夫をしました。本書の内容としては、統計検定4級対応「<ruby><rb>資料</rb><rp>（</rp><rt>しりょう</rt><rp>）</rp></ruby>の活用」（東京都書）のグラフを再現していきます。
+
+参考図書: 統計検定4級対応「資料の活用」
+https://www.toukei-kentei.jp/about/grade4/
+
+グラフについては、学校での学習だけでなく、都道府県で開かれる「グラフコンクール」で発表するというチャンスもあります。このコンクールは、対象が小学１・２年生から大人までの５部構成になっています。パソコンを使ってグラフを作成する「パソコン統計グラフの部」もあります。この本を活用して、ぜひとも「パソコン統計グラフの部」に挑戦していただきたいと思います。
+
+統計グラフ全国コンクール（公益財団法人 統計情報研究開発センター）
+https://www.sinfonica.or.jp/tokei/graph/content_b70.html
+
+## 学習<ruby><rb>環境</rb><rp>（</rp><rt>かんきょう</rt><rp>）</rp></ruby>
+
+インターネットに<ruby><rb>接続</rb><rp>（</rp><rt>せつぞく</rt><rp>）</rp></ruby>できるパソコンまたはタブレットを用意してください。タブレットの場合はキーボードがあるほうがよいでしょう。スマートフォンは、画面が小さすぎるため使用できません。
+
+クラウドサービスを使うため、インターネットが必須になります。その一方で、端末 (Windows, Macintosh, ChromeBook, iPad, Android) によらず、すべて同じように操作することができます。
+
+RStudio.cloud で使用するプログラミング言語は R です。これは統計の専門家などが使う本格的な言語です。
+
+なお、RStudio.cloud は、教員が作成した学習環境を、児童・生徒・学生に配布することができます（この方法はまだ本書では解説していません。済みません。）。
+
+## 学習のねらい
+
+文部科学省は「小学校プログラミング教育の手引」では学習のねらいの一つとして、「プログラミング<ruby><rb>的</rb><rp>（</rp><rt>てき</rt><rp>）</rp></ruby>思考」を育むこと、とあります。しかし、「プログラミング<ruby><rb>的</rb><rp>（</rp><rt>てき</rt><rp>）</rp></ruby>思考」が、かなり大きく捉えられており、プログラミングができるようにならないものも「プログラミング<ruby><rb>的</rb><rp>（</rp><rt>てき</rt><rp>）</rp></ruby>思考」に<ruby><rb>含</rb><rp>（</rp><rt>ふく</rt><rp>）</rp></ruby>まれています。ここでは、プログラミングができるようになるために必要な技術を学ぶことを目的として、以下のねらいを設定しています。
+
+* プログラム（ソースコードとも言います）を書き、実行することができる。
+* <ruby><rb>変数</rb><rp>（</rp><rt>へんすう</rt><rp>）</rp></ruby>、<ruby><rb>関数</rb><rp>（</rp><rt>かんすう</rt><rp>）</rp></ruby>、<ruby><rb>引数</rb><rp>（</rp><rt>ひきすう</rt><rp>）</rp></ruby>といった、プログラミングの概念を理解する。
+* <ruby><rb>変数</rb><rp>（</rp><rt>へんすう</rt><rp>）</rp></ruby>の<ruby><rb>型</rb><rp>（</rp><rt>かた</rt><rp>）</rp></ruby>について、<ruby><rb>数字型</rb><rp>（</rp><rt>すうじがた</rt><rp>）</rp></ruby>、<ruby><rb>文字型</rb><rp>（</rp><rt>もじがた</rt><rp>）</rp></ruby>、<ruby><rb>因子型</rb><rp>（</rp><rt>いんしがた</rt><rp>）</rp></ruby>を学ぶ。
+
+一方で、次のことはプログラミング言語には必須ですが、含めていません。
+
+* くり返しと分枝
+* クラスとオブジェクト
+* スコープ
+
+## <ruby><rb>到達目標</rb><rp>（</rp><rt>とうたつもくひょう</rt><rp>）</rp></ruby>
+
+* 変数とデータフレームを操作することができる。
+* 棒グラフ、折れ線グラフとその複合グラフ、帯グラフを描くことができる。
+* 作図する関数の引数を使って色や線の太さなど変えられる。
+* 図の軸を変えたり、図中に文字を書き込める。
+* レポートを作成することができる。
+
+## キーボード
+
+ここでは、ふだんあまり使わないキーを説明します。
+
+まず、最初は「バッククォート」です。記号は、 \` です。これは、シフトキーを押しながら、アットマークのあるキーを押します。
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/keyboard.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=7.5,xmax=8.4,ymin=5.0,ymax=6.3, alpha=0, fill="white", colour="red", size=2) +
+  annotate("rect",xmin=0.2,xmax=1.7,ymin=3.0,ymax=4.2, alpha=0, fill="white", colour="red", size=2) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+## 初学者向けのお約束
+
+このコースでは、小・中学生も含めたプログラミング初学者が学ぶことができるように、以下の点に注意しています。
+
+* 高度な数学は使いません。計算は主に四則演算になります。なお、掛け算は `*`、割り算は `/` です。
+  * 例1: 「２かける３」は `2 * 3` と書きます。
+  * 例2: 「６わる２」は `6 / 2` と書きます。
+* プログラミングを使って作図をします。この際、図の下部にある軸を x 軸、図の左側にある軸を y 軸といった用語を使っています。
+* R は一部日本語化されていますが、英語でメッセージが出ることもあります。重要なメッセージについて解説いたします。
+* 関数は、`sum()` のように、()をつけて示しています。
+* 変数は、変数であることをわかりやすくします。数字や文字の変数は、`myFile` のように、`my` を頭に付けています。データフレームの場合は、`dfKentei` のように、df を頭に付けています。
+* データフレームの列名は、`dfKentei$やま` の `やま` のように、どのデータフレームの列か分かるように示します。名前は通常、日本語（ひらがな）にしています。
+  * 列名は、数字から始めることを避けます。
+  * 日本語や数字から始める場合は、バッククォートで囲むことが必要な時があります（例: dfKentei$\`10メートル走\`）
+* プログラム、データフレーム、変数がなるべく常に RStudio.cloud の画面上で表示されるようにします。
+
+この部分は、R のプログラム部分になります。ソースコードは、色を使って見やすくしています。
+
+```{r eval=F}
+library(ggplot2)
+dfSample <- read_excel("MyFile.xlsx")
+ggplot(dfSample, aes(x = Height, y = Weight)) +
+  geom_bar(stat = "identity", width = 0.5)
+```
+
+* 青色: 関数
+* 緑色: 関数の引数、代入記号 `<-`
+* 黒色: 変数、データフレーム、データフレームの列名などのオブジェクト
+* うすい青色: 文字
+* 黄土色: 数値
+
+となります。
+
+なお、本書は個人による出版ですので、個別の問い合わせには応じかねます。
+

@@ -1,0 +1,246 @@
+# 棒グラフ {#ch03}
+
+## 棒グラフの目的
+
+棒グラフは、数量の大小を比較するのに適しています（統計検定４級テキスト p. 11-14）。
+
+* 棒の高さが量をしめします。
+* 棒の幅は統一します。
+* 並べ方は、種類ごとにまとめたり、大きい順など、工夫をすることができます。
+* 何種類かの値を同時にグラフ化することもあります。
+
+## パッケージ
+
+これまで、Rmd ファイルを作成する時、エクセルファイルをインポートする時など、何度か「パッケージ」をインストールしてきました。
+ここでは、これからグラフを描くために使うパッケージを自分から追加してみましょう。
+
+Tools &gt; Install Packages を選択します。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch3/ch3-installpackage.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center"}
+img
+```
+
+次のような画面になります。
+
+ここで、 "gg" まで入力すると、インストールできるパッケージの候補が表示されます。このように、候補が表示されるのが、「統合開発環境」の良いところです。このほかでも様々なところで候補が表示されます。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch3/ch3-installpackage2.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+ここで、以下のようなパッケージをインストールしておきましょう。
+
+* `ggplot2`
+
+Install をクリックすると、Console のところにインストールの経過が表示されます。
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch3/ch3-installpackage3.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+
+## データを読み込み
+
+先週の流れのおさらいです。
+
+1. エクセルファイルを読み込み、データフレームに格納する。
+1. データフレームを確認する。
+1. データフレームから棒グラフを作図する。
+
+
+まずは、エクセルファイルを読み込み、データフレームとして格納します。
+
+データフレームの名称は、データフレームであることがわかるように df を頭につけるなどするとよいと思います。例: `dfKentei4`
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+<div style="text-algn:center;">**つまづきポイント**</div>
+
+R の解説本は、データフレームや変数などの名称に無関心なことが多く思われます。初学者は、このオブジェクトがデータフレームなのか引数名なのかなどがわからないので、分かりやすい命名規則を使うとよいと思います。
+</div>
+
+
+```{r}
+library(readxl)
+dfKentei4 <- read_excel("とうけい4きゅう.xlsx")
+```
+
+つぎに、データを確認します。
+
+Step 1. 右上のペインの Environment から、`dfKentei4` をクリック
+
+Step 2. Rmd とデータが別のペインになるように、一方を移動させる
+
+このようにすることで、データを確認しながら、プログラムを書くことができます。
+
+## データから作図
+
+これは、以下のコードを実行します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ))
+```
+
+次に、プログラムの右にある緑色の三角のボタンがあります。マウスをボタンの上に置くと、小さく "Run Current Chunk" と表示されます。これをクリックします。
+
+すると、プログラムの下に、グラフの元となる方眼紙のようなものが現れました。ただし、方眼紙だけで、棒グラフが出てきていません。
+
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+棒 (bar) グラフを描くためには、`geom_bar()` という関数を、足します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity")
+```
+
+引数 `stat` に "identity" というものを設定しています。これは、y に設定している `たかさ` 列をそのまま棒の高さとする設定です。
+
+<div style="display:inline-block;width:38%;vertical-align:top;font-size:0.8em;">
+
+<br /><br />
+
+Rmd に上記のソースコードを書くと、右のようになっていると思います。
+
+ソースコードの部分を「チャンク」と言います。
+チャンクの右上、10行目の右端にある緑色の三角形のボタンを押すと、このソースコードが実行されます。
+
+</div><div style="display:inline-block;width:58%;vertical-align:top;font-size:0.8em;">
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/3-5.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("segment", x=4.15, xend=4.75, y=4.2, yend=4.2, colour="red", size=2) +
+  annotate("segment", x=4.15, xend=4.75, y=3.4, yend=3.4, colour="red", size=2) +
+  annotate("segment", x=4.2, xend=4.2, y=3.4, yend=4.2, colour="red", size=2) +
+  annotate("segment", x=4.7, xend=4.7, y=3.4, yend=4.2, colour="red", size=2) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="8100%", fig.align="center", dpi=300}
+img
+```
+
+</div>
+
+<div style="display:inline-block;width:38%;vertical-align:top;font-size:0.8em;">
+
+グラフが作成されました。
+
+</div><div style="display:inline-block;width:58%;vertical-align:top;font-size:0.8em;">
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/3-6.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=1.2,xmax=5.6,ymin=0.3,ymax=3.6, alpha=.3, fill="red") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="100%", fig.align="center", dpi=300}
+img
+```
+
+</div>
+
+結果として、このようになります。
+
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity") +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+元の図の幅と色から変えましょう。
+`geom_bar()` 関数に、引数の `width` と `fill` を追加します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue")
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+つぎに、y 軸の目盛りを設定します。
+これは、`scale_y_discrete()` 関数を追加します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(
+    limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000)) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+引数 `limits` では、y 軸の目盛りを指定しています。引数の値が、一つだけではなく二つ以上ある時は、`c(1, 2)` のように、`c()` で囲みます。
+
+軸は、数直線です。ただし、数値はそのままでは見づらいことがあります。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(
+    limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000),
+    labels=c("0","1,000","2,000","3,000","4,000","5,000","6,000","7,000","8,000","9,000","10,000"))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000),
+                   labels=c("0","1,000","2,000","3,000","4,000","5,000","6,000","7,000","8,000","9,000","10,000")) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+引数 `labels` は、その前に引数 `limits` で設定した数字（データ型は数値型）に対し、文字（データ型は文字型）で設定しています。このため、二つの要素の数は一致させないといけません。
+
+## まとめ
+
+本日学んだのは、`ggplot2` による作図です。
+
+* 必要に応じてパッケージを追加することを学びました。
+* `ggplot()` 関数は、足し算方式で図の設定を追加することを学びました。
+* `geom_bar()`: 棒グラフを描くことを学びました。
+* `scale_y_discrete()`: y 軸の目盛りを設定することを学びました。
+
+ところで、よく見ると山の名称の並び順がテキストと異なっています。
+これは次章で直していきたいと思います。

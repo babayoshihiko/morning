@@ -1,0 +1,233 @@
+# データとデータフレーム {#ch02}
+
+それでは、データを取り込んでみましょう。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-excel.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=1.8,xmax=7.8,ymin=3.2,ymax=4.8, alpha=.7, fill="white") +
+  annotate("text", x = 4.8, y = 4, col = "red", label = "File > Import Dataset > From Excel", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+初めての方は、以下のように警告が出てきます。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-excel2.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=1.8,xmax=7.8,ymin=1.2,ymax=2.8, alpha=.7, fill="white") +
+  annotate("text", x = 4.6, y = 2, col = "red", label = "データをインポートするには、追加の\n「パッケージ」が必要という確認。", family="HiraKakuProN-W3") +
+    theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+ここで、初めて「パッケージ」という言葉が出てきました。
+R では、パッケージはライブラリとも言います。
+エクセルファイルをインポートするには、パッケージを使用します。
+
+<div class="roundexbox">
+Windows では、エラーが出てインストールできないことがあります。しかも、Windows は文字化けしてエラーメッセージが読めないことがあります。
+
+これを修正するためには Windows の知識が必要な上、１時間以上時間がかかるので、クラウド版の利用をお勧めします。
+</div>
+
+ここでは、`readxl` と `Rcpp` という二つのパッケージをインストールしようとしています。
+
+* `readxl`: Excel ファイルを読むためのパッケージ。ただし、読み込むだけで書き込みはできない。
+* `Rcpp`: 他のパッケージをコンパイルするために必要なパッケージ。
+
+**Yes** を選択し、しばらく（30秒くらい）待つと、下のような画面になり、エクセルファイルを読み込む画面になります。
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+<div style="text-align:center;">**パッケージ？ライブラリ？**</div>
+
+厳密にいうと、パッケージは関数などのソースコードで、ライブラリはパッケージの保存場所を指します。
+</div>
+
+## エクセルファイルのインポート
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-excel5.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=5.7,xmax=9.2,ymin=1.5,ymax=3.5, alpha=0, color = "red", fill="white", size=2) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+上の File/URL では、保存してあるファイルだけでなく、インターネット上のファイルも指定することができます。
+
+なお、実際には R に、ソースコードを送っています。
+そのソースコードが、 Code Preview に表示されています。
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+<div style="text-align:center;">**つまづきポイント**</div>
+
+* ファイルを探して指定したい場合は Browse をクリックしてください。
+File/URL にパスを入力すると、Browse ボタンが Update に変わります。
+この場合は、いったん Update でプレビューを確認しなければ、インポートはできません。
+
+* RStudio.cloud を使っている方は、自分のパソコンにあるファイルは直接はインポートできません。RStudio.cloud では、File ペインに Upload ボタンがあります。これを利用して、まずは RStudio.cloud にファイルをアップロードしてください。
+
+* R でのパスは、Windows でもバックスラッシュではなくスラッシュを使います。例: C:/Benkyo/Benkyo.xlsx
+</div>
+
+## データフレーム
+
+では、エクセルファイルを読み、データフレームに格納するソースコードを書いてみましょう。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-code.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=0.2,xmax=4.0,ymin=3.0,ymax=5.5, alpha=0, color = "red", fill="white", size=2) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+```{r eval=F}
+library(readxl)
+myUrl <- "http://124.219.182.167/download/とうけい4きゅう.xlsx"
+myDestfile <- "とうけい4きゅう.xlsx"
+download.file(myUrl, myDestfile)
+dfKentei4 <- read_excel(myDestfile)
+```
+```{r echo=F}
+library(readxl)
+library(curl)
+myUrl <- "http://124.219.182.167/download/とうけい4きゅう.xlsx"
+myDestfile <- "とうけい4きゅう.xlsx"
+#curl::curl_download(myUrl, myDestfile)
+dfKentei4 <- read_excel(myDestfile)
+```
+
+この分は、Rのソースコード（プログラム）部分になります。
+ソースコードは、色を使って見やすくしています。
+ウェブ版では、この部分は、
+
+* 青色: 関数
+* 緑色: 関数の引数、代入記号 `<-`
+* 黒色: 変数、データフレーム、データフレームの列名などのオブジェクト
+* うすい青色: 文字
+* 黄土色: 数値
+
+となります。
+
+また、RStudio でも色がついて表示されますが、これは Tools &gt; Global Options として、上から４つ目の Appearance を開くと、いろいろと色の設定ができます。
+使いやすいテーマを使うと良いでしょう。
+
+では、プログラムの解説を行います。まず、最初の２行にある `library(readxl)` と `library(curl)` は、それぞれ `readxl` と `curl` というパッケージを使うために読み込んでいます。初めての方は、これらのパッケージをまだインストールしていないので、インターネットからインストールする必要があります。
+
+次の２行は、`myUrl` と `myDestfile` という二つの変数を設定しています。
+
+５行目には、`file.download(myUrl, myDestfile)` とあります。`file.download()` は、インターネット上からファイルをダウンロード関数で、最初の引数に `myUrl`、２つ目の引数に `myDestfile` を渡しました。
+最後に、`read_excel()` 関数を使って、`dfKentei4` というデータフレームにデータを格納しました。
+
+注意：Windows では、
+
+download.file(myUrl, myDestfile, mode = "wb")
+
+とする必要があります。
+
+成功すると、以下のような画面になります。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-code4.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=0.2,xmax=2.8,ymin=3.7,ymax=7.2, color="red", alpha=0, fill="red", size=2) +
+  annotate("rect",xmin=5.4,xmax=9.5,ymin=5.4,ymax=6.0, color="red", alpha=0, fill="red", size=2) +
+  annotate("text", x = 7.3, y = 6.6, col = "red", label = "現在メモリにあるデータフレーム", family="HiraKakuProN-W3") +
+  annotate("text", x = 4.5, y = 4.5, col = "red", label = "データフレームの内容", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+なお、この画面でデータフレームの中身を書きかえることは**できません**。
+
+```{r echo=F}
+kable(dfKentei4)
+```
+
+## 5ペインにする
+
+実際に作図を始める前に、作業環境を改善しましょう。
+
+1. Tools &gt; Global Options を選択します。
+2. Pane Layout を選択します。
+3. Add Column をクリックします。
+
+これで、以下のように Source ペインが左側に追加されました。
+（View &gt; Panes &gt; Pane Layout からも設定できます。）
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-5panes.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect", xmin=1.6, xmax=3.1, ymin=5, ymax=5.6, fill = "white", colour = "red", alpha = 0) +
+  annotate("rect", xmin=3.2, xmax=4.5, ymin=6, ymax=6.5, fill = "white", colour = "red", alpha = 0) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-5panes2.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect", xmin=3.7, xmax=4.7, ymin=5.6, ymax=6.4, fill = "white", colour = "red", alpha = 0, size=1) +
+  annotate("rect", xmin=3.0, xmax=6.0, ymin=6.5, ymax=7.5, fill = "white", alpha = 0.7) +
+  annotate("text", x = 4.5, y = 7, col = "red", label = "Add column をクリック", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-5panes4.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("curve", x=3.3, y=7, xend=1, yend=7, curvature=0.3, arrow=arrow(length=unit(2,"mm")), colour = "red", size = 1) +
+  annotate("text", x = 2, y = 5.5, col = "red", label = "ドラッグする。\nタブレットの場合、\n短くタップして持ってくる。", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/ch2/ch2-5panes5.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect", xmin=1.5, xmax=3.3, ymin=6.9, ymax=7.7, fill = "white", alpha = 0.7) +
+  annotate("text", x = 2.5, y = 7.2, col = "red", label = "Rmd ファイル", family="HiraKakuProN-W3") +
+  annotate("text", x = 6, y = 7.2, col = "red", label = "データフレーム", family="HiraKakuProN-W3") +  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+## まとめ
+
+* エクセルファイルを、ローカルまたはインターネットから開きました。
+* Rでは、データは「データフレーム」という形式を扱うことを学びました。

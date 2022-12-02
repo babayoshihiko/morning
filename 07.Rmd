@@ -1,0 +1,157 @@
+# 複合グラフ {#ch07}
+
+ここでは、棒グラフと折れ線グラフを一つのプロットに重ねて描いてみようと思います。
+
+棒グラフの y 軸は左側に設定します。
+折れ線グラフの y 軸は右側に設定します。
+
+複合グラフを描くために、統計検定テキスト４級の p. 60 のデータを使ってみましょう。
+
+まず、エクセルファイルをインポートし、データフレームに格納します。
+
+```{r}
+library(readxl)
+dfMatz <- read_excel("とうけい4きゅう.xlsx", sheet = "p60")
+```
+
+データの中身を見てみましょう。
+
+```{r echo=F}
+datatable(dfMatz)
+```
+
+このデータフレームは、野球選手である松坂投手の球種別の投球数のデータです。
+、統計検定テキスト４級の p.60 の表2.2.5の投球数までとなっています。
+
+`きゅうしゅ` 列を因子に変えておきましょう。
+これをしない場合、図を描画する際にあいうえお順に並ばれます。
+
+```{r}
+dfMatz$きゅうしゅ <- factor(dfMatz$きゅうしゅ, levels = dfMatz$きゅうしゅ)
+```
+
+`factor()` 関数は、因子に変更して返します。
+最初の引数の `dfMatz$きゅうしゅ` は、データフレーム `dfMatz` の `きゅうしゅ` 列を表しています。
+因子は順序を付けることができるのですが、ここではそのままの順序にします。
+このため、`levels = dfMatz$きゅうしゅ` という引数を追加しています。
+
+返した値は、データフレーム `dfMatz` の `きゅうしゅ` 列に格納します。
+つまり、上書きをします。
+
+RStudio の Environment ペインで、Factor に代わっていることを確認しましょう。
+
+## 累積度数の計算
+
+統計検定４級テキスト p. 60 にあるとおり、累積とは、ある度数などを順に足していくことです。
+累積度数とは、ある度数列を順に足していった列となります。
+R では、累積度数は、`base` パッケージにある関数 `cumsum` を使って設定することができます。
+
+データフレーム `dfMatz` にある列 `かいすう` を元に、累積度数を計算します。
+累積度数は、新しい列 `CumulativeSum` に格納します。
+
+```{r}
+dfMatz$CumulativeSum <- cumsum(dfMatz$かいすう)
+```
+
+`dfMatz$CumulativeSum` は、データフレーム `dfMatz` の列 `CumulativeSum` を指します。
+データフレームの後に `$` 記号を置き、その後に列名を繋げます。
+この列はまだ存在していない列なので、新たに作られます。
+すでにある列の場合、上書きされます。
+
+`cumsum()` は、base パッケージにある関数で、累積度数を返します。
+
+これを `<-` で `dfMatz$CumulativeSum` に格納しています。
+
+次に、累積度数を総数で割り、累積相対度数を計算します。
+
+```{r}
+dfMatz$CumulativeProportion <- dfMatz$CumulativeSum / sum(dfMatz$かいすう)
+```
+
+この行の最後にある `sum()` は、base パッケージ関数で、引数である `dfMatz$かいすう` の合計を返します。
+
+`dfMatz$CumulativeSum / sum(dfMatz$かいすう)` は、累積度数の列を、投球数の合計でそれぞれ割る処理をし、結果として累積相対度数を返します。
+
+最終的に、`dfMatz` データフレームに、新しい列 `CumulativeProportion`　を作って格納しています。
+
+## 棒グラフ + 折れ線グラフ
+
+では、複合グラフとして、投球数を棒グラフ、累積相対度数を折れ線グラフで描いてみます。
+
+まずは、級種別の投球数を棒グラフ化します。
+おなじみの `ggplot()` と `geom_bar()` という関数を使用します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") 
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+次に、累積相対度数の折れ線グラフを描きます。
+ここで大事なことは、もともと `ggplot()` 関数には、引数 x に `きゅうしゅ`, 引数 y に `かいすう` を指定しています。
+このままでは x はよくても y が累積相対度数になりません。
+そこで、`geom_line()` 関数には、改めてデータフレーム、x, y を指定します。
+
+ただし、ここで問題があります。
+上で棒グラフを描いたときに、y 軸の幅が 0 から 1560 までになりました。
+
+しかし、`CumulativeProportion` は割合なので、数値が 0.1 や 0.9 などになります。
+そこで、`CumulativeProportion` に 1500 を掛けて、線がつぶれてしまわないようにします。
+
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") +
+  geom_line(data = dfMatz, 
+            aes(x = きゅうしゅ, 
+                y = CumulativeProportion * 1500, 
+                group = 1, 
+                inherit.aes = FALSE))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") +
+  geom_line(data = dfMatz, aes(x = きゅうしゅ, y = CumulativeProportion * 1500, group = 1, inherit.aes = FALSE)) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+最後に、`scale_y_continuous()` 関数を使って右側に二つ目の y 軸を設定します。
+二つ目 (second) の y 軸なので、`sec.axis` という引数に、`sec_axis()` 関数を使って設定します。この辺は、似たような名称のものが連続するので、分かりづらい点ですね。
+
+なお、このとき、目盛りが1500倍されているので、1500で割ります。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") +
+  geom_line(data = dfMatz, 
+            aes(x = きゅうしゅ, 
+                y = CumulativeProportion * 1500, 
+                group = 1, 
+                inherit.aes = FALSE)) +
+  scale_y_continuous(sec.axis = sec_axis(~./1500, name = "累積度数"))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfMatz, aes(x = きゅうしゅ, y = かいすう)) +
+  geom_bar(stat = "identity") +
+  geom_line(data = dfMatz, aes(x = きゅうしゅ, y = CumulativeProportion * 1500, group = 1, inherit.aes = FALSE)) +
+  scale_y_continuous(sec.axis = sec_axis(~./1500, name = "累積度数")) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+もし気になるのであれば、x 軸と y 軸の左側のラベルを変えてみてください。
+
+## まとめ
+
+* データフレームの列の計算を学びました。
+* `ggplot2` を使い、二つ目のデータの図化を学びました。
+*  二つ目のデータに対する二つ目の y 軸の設定方法を学びました。

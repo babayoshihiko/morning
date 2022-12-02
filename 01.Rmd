@@ -1,0 +1,372 @@
+# RStudio {#ch01}
+
+R/Rstudio は、Windows, macOS, Linux などで使用することができる、統計のプログラミング言語とその統合開発環境です。
+R は、短いコードでグラフを<ruby><rb>描</rb><rp>（</rp><rt>か</rt><rp>）</rp></ruby>くことができることが特徴です。
+また、ウェブブラウザ上で R/RStudio を使う、RStudio.cloud というサービスがあります。
+
+<ruby><rb>通常</rb><rp>（</rp><rt>つうじょう</rt><rp>）</rp></ruby>はパソコンにインストールして使いますが、とくに Windows でトラブルがよく出ます。
+そこで、この本では、R を簡単に試すことができる RStudio.cloud を使用します。
+
+RStudio.cloud は、R および RStudio を ウェブブラウザ上で<ruby><rb>遠隔操作</rb><rp>（</rp><rt>えんかくそうさ</rt><rp>）</rp></ruby>するウェブサービスです。
+無料版は、月当たり25時間まで、1回1時間までというものですので、工夫すれば授業で使うことができると思います。
+R はインストールで失敗したり、パッケージのインストールに失敗することがあるので、お勧めです。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-01.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+まず、RStudio.cloud でアカウントを作成します。
+
+あらかじめ、ここで<ruby><rb>登録</rb><rp>（</rp><rt>とうろく</rt><rp>）</rp></ruby>するメールアドレスを決めておいてください。Google アカウントまたは GitHub アカウントを持っている場合は、そのアカウントを使うこともできます。
+
+<div style="display:inline-block;width:38%;vertical-align:top;">
+
+Google アカウントを使う場合、スクロールして、
+
+Sing Up with Google
+
+を選択してください。
+
+</div><div style="display:inline-block;width:10%;vertical-align:top;">
+</div><div style="display:inline-block;width:48%;vertical-align:top;">
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-02.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+</div>
+
+## プロジェクトの作成
+
+RStudio.cloud でアカウントを作成すると、まずプロジェクトの作成を求められます。
+
+プロジェクトには、ここで使う RStudio の他に、Jupyter と、Github があります。
+
+* RStudio: これがR/Rstudio のプロジェクトの基本になります。
+* Jupyter: これは、主に Python 向けの<ruby><rb>統合開発環境</rb><rp>（</rp><rt>とうごうかいはつかんきょう</rt><rp>）</rp></ruby>です。
+* Github: これは、すでに他の人が作った公開プロジェクトを読み込む際などに使用します。
+
+<div style="display:inline-block;width:38%;vertical-align:top;">
+
+ここでは、 New RStudio Project を選択しましょう。
+
+</div><div style="display:inline-block;width:10%;vertical-align:top;">
+</div><div style="display:inline-block;width:48%;vertical-align:top;">
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-03.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+</div>
+
+しばらくすると、以下のような画面になります。
+これが、RStudio の初期画面になります。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-04.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("text", x = 6, y = 7, col = "red", label = "Step 1. タイトルと著者を入力", family="HiraKakuProN-W3") +
+  annotate("text", x = 6, y = 2, col = "red", label = "Step 2. スクロールして、OK をクリック", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+Step 1: まずはプロジェクト名を決めましょう。"Stat4" などとします。
+
+Step 2: Console 部分です。ここが、R 本体を<ruby><rb>操作</rb><rp>（</rp><rt>そうさ</rt><rp>）</rp></ruby>している部分になります。&gt; の右にコマンドを入力して R を動かしていきます。
+
+Console などに表示されたメッセージには、日本語でメッセージが表示されることもありますが、だいたい英語で表示されます。これは、英語が苦手な人や小・中学生などは<ruby><rb>難</rb><rp>（</rp><rt>むずか</rt><rp>）</rp></ruby>しいと思います。もし、Error と出ていたら、何らかのエラーが発生して実行していたものが途中で終わってしまっています。Error という文字がなさそうであれば、たとえ赤字でエラーっぽく見えていても、<ruby><rb>正常</rb><rp>（</rp><rt>せいじょう</rt><rp>）</rp></ruby>に終わっていることがほとんどです。
+
+## R と RStudio
+
+R と RStudio は、<ruby><rb>別</rb><rp>（</rp><rt>べつ</rt><rp>）</rp></ruby>のソフトウェアです。
+R は R 本体のことで、RStudio は R を<ruby><rb>快適</rb><rp>（</rp><rt>かいてき</rt><rp>）</rp></ruby>に操作するための<ruby><rb>環境</rb><rp>（</rp><rt>かんきょう</rt><rp>）</rp></ruby>になります。
+RStudio を使わなくても、R を使うことは可能です。
+
+R の<ruby><rb>特徴</rb><rp>（</rp><rt>とくちょう</rt><rp>）</rp></ruby>は、フリーソフトウェアであることです。
+フリーソフトウェアとは、<ruby><rb>無料</rb><rp>（</rp><rt>むりょう</rt><rp>）</rp></ruby>のソフトウェアという意味ではありません。
+ここでは、「フリー」は「自由」の意味で、だれもが「自由」に改変したり、<ruby><rb>機能</rb><rp>（</rp><rt>きのう</rt><rp>）</rp></ruby>を足したりできます。
+このため、多くの人が機能を作って、公開しています。
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+<div style="text-align: center;">**つまづきポイント: R と RStudio って？**</div>
+
+R 本体は、テキストファイルに書かれたソースコードや、Console に入力されたコードを実行するプログラムです。
+
+一方、RStudio は、ソースコードを描いたテキストファイルを編集できるようにしたり、結果を表示したりするプログラムです。また、レポート作成も可能で、HTML（そのままブログとして投稿可能）や Word .docx 形式で出力することができます。
+
+R のバージョンは、4.1.2 です。一方、RStudio のバージョンは、2021.09.1 です。
+</div>
+
+
+研究目的でよく使われている他のソフトウェアと比較すると、以下のような長所と短所があります。
+
+長所
+
+* 多くの統計学の専門家が開発に関わっています。
+* 無料です。上では「フリー」は無料の意味ではないと述べましたが、他のソフトウェアでは数十万円する機能が無料なのはやはり長所と言えます。
+* 研究途中に症例が増えるなどしてデータが変わった場合、コードを再実行することで統計解析・作図を瞬時に行うことができる。
+* 図が美しい。
+
+短所
+
+* 非常にわかりづらい。
+* 誰でも機能追加ができるために、一貫性がない。また、同じことができるパッケージが複数存在し、どれを使ってよいかわかりにくい。
+* プログラミング言語としては、ほかの主要な言語と大きく異なる。ほかの言語を習得している人であっても、R にはなかなかなじみづらい。
+* 日本語が弱い。特に、Windows でユーザ名が日本語になっていると、RStudio はうまく機能しません。ファイル名やディレクトリ名はなるべく英語にしておきましょう。また、図や PDF を作成する際に、日本語がうまくいかないことが多々あります。
+
+<div class="roundedbox">
+<div style="text-align: center;">**教員向けの情報**</div>
+
+RStudio.cloud は、プログラミング教育に適した特徴があります。
+
+* 環境が統一される。
+* 教員の環境（パッケージをインストールしておいたり、解析に使うエクセルファイルなど）を、生徒の RStudio.cloud に配布することができる。
+* インターネットが接続されていることが保証される。
+</div>
+
+
+## 日本語化
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-10.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+Step 1. Console に、以下のように入力してみましょう。
+
+```{r}
+Sys.setlocale("LC_MESSAGES",'ja_JP.UTF-8')
+```
+
+これにより、メッセージの一部が日本語化されます。残念ながら、それほど多くは日本語化されていませんが、それでも多少は敷居が下がることでしょう。
+
+<div class="roundedbox">
+Windows 版 R では、
+
+```{r}
+Sys.setenv(LANGUAGE="ja")
+```
+
+となります。
+</div>
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-11.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+## Rmd
+
+まず、File &gt; New File &gt; R Markdown... を選択します。
+はじめて Rmd ファイルを作成する場合、追加パッケージのインストールが必要になります。これは、自動的に行われます。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-12.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-13.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-14.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+赤い字でメッセージが出てきますが、エラーではありません。これで必要なパッケージのインストールに成功しています。
+
+<div class="roundedbox">
+<div style="text-laign:center;">**この段階でのエラー**</div>
+
+RStudio.cloud ではなく、Windows 版を使っていると、この段階でパッケージインストールのエラーが出ることがあります。
+
+この問題が出る Windows の修正は、Windows の知識をある程度必要とします。また、R が使えるよう設定するまでに１時間以上かかります。このため、RStduio.cloud をお使いすることをお勧めします。
+</div>
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-15.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+Rmd は、RStudio のファイル形式です。
+
+Rmd の基礎となっているのは、Markdown という、デジタル文書の書き方です。
+マークダウンでは、以下のように記述します。
+
+* 冒頭の `---` で囲まれている部分は、あとで使うので、今は変更しない。
+* 見出しは `#` 記号を使う。より小さい見出しは `##` と、`#`記号を増やしていく。
+* 強調したい部分は `**` で囲む。例: Rmd は、\*\*とても\*\*簡単です。
+* 箇条書きは、行頭に `-` または `*` とする。番号付き箇条書きは、行頭を 1とすれば、自動的に数字を順序にしてくれる。
+* R のプログラムは、```\{r\} と ``` で囲まれた範囲に書きます。
+
+Rmd をこのように変えてみましょう。
+
+<div class="sourceRmd">
+```{}
+---
+title: タイトル
+author: 名前
+date: 日付
+output: html_document
+---
+```
+\# はじめに
+
+今日、はじめて RStudio を試します。
+
+\#\# R とは
+
+R はとてもすばらしい統計プログラミング言語です。
+
+\#\# プログラムを書いてみよう
+
+\`\`\`{r}
+
+\#\#\# ここに、あとで R のプログラムを書きます
+
+\`\`\`
+
+\#\# おわりに
+
+RStudio を使えるようになりました。
+
+</div>
+
+まずは、いま作った Rmd を保存しましょう。ファイル名には、なるべく日本語を使わないようにします。R では、基本的に日本語は避けたほうが良いです。とくに、ファイル名とフォルダ名、図中の日本語、PDF出力の際に日本語が文字化けしたり、表示されないことがあります。ただし、Rmd の本文は、PDFに出力するとき以外は日本語を使うことができます。
+
+### Rmd に R を埋め込む
+
+Rmd では \`\`\`\{r\} と \`\`\` で囲まれた中に R のソースコードを書くことで、R を実行することができます。
+この記号は「バッククォート」(backquote, backtick) と言い、日本語キーボードでは通常、シフトキーを押しながらPの右となりの @ キーを押すことで表示されます。
+この部分は「コードチャンク」と言い、グレーの背景になっていると思います。
+
+このように記述したものは、RStudio で HTML や Word .docx などの形式に、整形した上で変換してくれます。
+
+試しに、以下のように書いてみましょう。
+
+<div class="sourceRmd">
+\`\`\`{r}
+
+```{r}
+myHeight <- 160
+```
+
+\`\`\`
+</div>
+
+英語で、"my" は「私の」、"height" は、「高さ、身長」などの意味です。
+これを書いた後で、コードチャンクの右上にある緑色の三角のボタンを押すと、この「コード」を実行します。
+
+本書では、変数には "my" をつけることにしています。
+
+一人ではなく、複数の身長データの場合は、`c()` という関数で列挙します。下記は4人の例です。
+
+```{r}
+myHeights <- c(160, 164, 154, 155)
+```
+
+### Rmd のアウトライン表示
+
+さらに、アウトラインを表示 (`Show document outline`) をクリックしてみます。
+長い文章を書く場合には、アウトラインを表示しておくと、行ったり来たりすることが楽になります。
+
+では、RStudio を終了しましょう。
+RStudio を終了すると、保存するかどうか聞かれます。
+この保存は、Rmd などのファイルのことではありません。
+RStudio の「セッション」と呼ばれるものを保存することになります。
+
+### Rmd からレポート作成
+
+Rmd は、ウェブページ (HTML形式) や Microsoft Word 形式のレポートを作成することができます。
+
+このことを、RStudio では「編む」という意味の knit と言います。
+
+図のように、HTML に編んでみましょう。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-21.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+最近は、ブラウザがポップアップを拒否することがあります。その場合は、以下のような警告が出ますが、ファイルをみていただくと HTML ファイルができていることが確認できます。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/Ch01-22.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("text", x = 6, y = 7, col = "red", label = "ポップアップがブロックされた", family="HiraKakuProN-W3") +
+  annotate("text", x = 6, y = 4, col = "red", label = "HTML ファイルはできている", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+## まとめ
+
+* R は、統計やグラフ作成に特化したコンピュータ言語であることを学びました。
+* RStudio は、R を快適に使うための統合開発環境 (IDE) です。
+* 記録は Rmd 形式で保存し、なるべく日本語の使用は避けることを学びました。

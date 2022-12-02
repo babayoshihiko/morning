@@ -1,0 +1,36 @@
+p.caption {
+  color: #777;
+  margin-top: 10px;
+}
+p code {
+  white-space: inherit;
+}
+pre {
+  word-break: normal;
+  word-wrap: normal;
+}
+pre code {
+  white-space: inherit;
+}
+keyword {
+  color: #73AD21;
+}
+wavy {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: red;
+}
+.sourceCode{
+  background: #ffffff; 
+}
+.roundedbox{
+  border-radius: 25px 10px 25px 10px; 
+  background: #73AD21; 
+  padding: 10px; 
+  width: 100%; 
+  color: white;
+}
+.sourceRmd{
+  background: #ffffff; 
+  font-family: monospace;
+}

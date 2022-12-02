@@ -1,0 +1,141 @@
+# Python を試してみよう！
+
+最後に、R とよりも一般的なプログラミング言語である Python を使ってみましょう。最初に、Python と Python のモジュール (R で言う所のパッケージ) をインストールします。
+
+```{r}
+library(reticulate)
+```
+
+R ではパッケージを追加して新しい機能を使いました。同様に、Python では「モジュール」を追加して、新しい機能を使います。まず、この「モジュール」をインストールする場所を設定します。
+
+```{r eval=F}
+install_miniconda()
+```
+
+メッセージがたくさん出たと思います。これは、今後は行う必要はありません。
+
+この後、Python の環境設定を行います。メニューから
+
+Tools &gt; Global Options...
+
+を選択し、Python を選択、Select を選択します。
+
+この後に、Conda Environments を選択します。
+
+ここで、R から Python のバージョンを確認してみましょう。
+
+```{r}
+sys <- import("sys")
+sys$version
+```
+
+つぎに、Python から、Python のバージョンを確認してみましょう。
+
+```{python}
+import sys
+print(sys.version)
+```
+
+では、次にモジュールをインストールしていきます。
+
+```{python}
+pip install pandas
+```
+
+```{r eval=F}
+py_install(packages = "openpyxl")
+```
+
+メッセージがたくさん出て来たかと思います。
+
+さらに二つモジュールをインストールします。
+
+```{r eval=F}
+py_install(packages = "pandas")
+py_install(packages = "matplotlib")
+```
+
+関数
+
+* `install.packages()`: R のパッケージをインストールする関数。
+* `library()`: インストール済みのパッケージを読み込む。ここでは、Python を使うために `reticulate` というパッケージをインストールしました。
+* `install_miniconda()`: `reticulate` パッケージの関数。Python のモジュールをインストールする環境をインストールする。１回だけでよいので、今後は実行する必要はありません。
+* `conda_install()`: `reticulate` パッケージの関数。Python のモジュールをインストールする。
+
+ここから先は、Python でプログラミングします。まず、コードチャンクで\`\`\`{r} と書いていた部分を、python に変えます。
+
+## 棒グラフ
+
+第３章で描いた棒グラフと同じものを描いてみましょう。
+
+最初に実行するのは、エクセルファイルの読み込みです。R で「パッケージ」と読んでいたものを、Python では「モジュール」といいます。Python でエクセルファイルを読んだり、データフレームを作るモジュールは `pandas` です。
+
+```{python}
+import pandas
+dfKentei4 = pandas.read_excel("とうけい4きゅう.xlsx", 
+  "p12", 
+  engine='openpyxl')
+```
+
+R でグラフを書くパッケージは `ggplot` でした。Python では、`matplotlib` です。
+
+Python 関数
+
+* import: モジュールを読み込みます。
+* pandas.read_excel(): エクセルファイルを読み込み、データフレームに格納します。
+
+R でデータフレームを読み込んだ時のように、Environment ペイン
+
+```{python}
+import matplotlib.pyplot
+ 
+matplotlib.pyplot.figure()
+dfKentei4.plot(kind = "bar") 
+matplotlib.pyplot.show()
+```
+
+プログラムの書き方が、R と Python ではかなり違いますね。
+
+Python 関数
+
+* matplotlib.pyplot.figure(): 作図を開始します。 
+* dfKentei4.plot(kind="bar"): データフレームから作図をします。種類は棒
+(bar) です。
+* matplotlib.pyplot.show(): 作成した図を表示します。
+
+文字化けが見られる場合、フォントを指定します。
+
+```{python}
+import matplotlib.pyplot
+
+matplotlib.pyplot.figure()
+dfKentei4.plot(kind = "bar")
+matplotlib.pyplot.legend(["やま"], prop={"family":"MS Gothic"})
+matplotlib.pyplot.show()
+```
+
+## 折れ線グラフ
+
+次は、第５章で描いてみた折れ線グラフを描いてみましょう。
+
+```{python}
+import pandas
+dfJPop = pandas.read_excel("とうけい4きゅう.xlsx", "p132", engine="openpyxl")
+```
+
+R でグラフを書くパッケージは `ggplot` でした。Python では、`matplotlib` です。
+
+```{python message=F, warning=F}
+import matplotlib.pyplot
+ 
+matplotlib.pyplot.figure()
+dfJPop.plot(x = "とし", kind = "line") 
+matplotlib.pyplot.legend(["じんこう"], prop={"family":"MS Gothic"})
+matplotlib.pyplot.xlabel("とし", fontname="MS Gothic")
+matplotlib.pyplot.show()
+```
+
+## まとめ
+
+* RStudio で Python のプログラムを書き、実行してみました。
+

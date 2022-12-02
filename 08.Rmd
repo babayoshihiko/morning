@@ -1,0 +1,235 @@
+# Long 形式と帯グラフ {#ch08}
+
+## Long 形式と Wide 形式
+
+Excel などでデータを準備する際には、なんとなく使用している「型」があると思われます。
+
+一例として、10人の生徒の体力を見るために、50m走の時間（Speed, 秒）と、幅跳びの距離（Jump, m）を、４月(April)、９月（September)、３月（March)の３回計測したとします。
+
+おそらく、このような表を作成するのではないでしょうか。
+
+```{r echo=FALSE}
+library(readxl)
+dfWide <- read_excel("とうけい4きゅう.xlsx", 
+    sheet = "wide")
+library(DT)
+```
+
+```{r echo=F}
+datatable(dfWide)
+```
+
+このように、被験者一人につき一つの行で、50m走3回と幅跳び3回分を横に広く (wide) に書く形式を Wide 形式と言います。
+
+この形式はとても見やすく、このままだいたいの作図もできます。
+
+一方で、この形式のままでは作図できないものがあります。
+その一つが、帯グラフになります。
+
+では、帯グラフを作るときは、どのような形式が良いでしょうか？
+
+```{r echo=FALSE}
+library(readxl)
+dfLong <- read_excel("とうけい4きゅう.xlsx", 
+    sheet = "long")
+```
+
+```{r echo=F}
+datatable(dfLong)
+```
+
+このように、数値が常に同じ列に入っているような形式を Long 形式といいます。
+
+## 帯グラフと円グラフ
+
+統計検定４級テキスト p. 11 にあるとおり、円グラフと帯グラフは、全体に対する割合を表す際に用いられます。
+また、テキスト p. 22 に解説されているように、棒グラフを円グラフに変換しています。
+また、テキスト p. 25 も割合であっても棒グラフを使うこともあります。
+
+帯グラフは、通常、帯が複数になるように作成します。
+例えば、「性別」ごとの「けがの原因」を、男女比較するために用います。
+このように、データフレーム内の２つの列を使うことを、２要因といいます。
+「要因」という語は、統計検定４級テキストでは使われていません。
+(因子の種類の数（たとえば性別は男と女の２つ）は水準（性別は２水準）といいます。)
+ここでは、帯グラフだけ作成します。
+
+統計検定４級テキストの図1.4.16 (p.27) は、同書の p. 55-57 にもデータがあります。
+なお、データは、 とうけい4きゅう.xlsx のシート p55 にあります。
+
+## Long データから棒グラフ
+
+まず、データを準備します。
+統計検定４級テキストには、帯グラフを作図するのに適したデータが見つかりません。
+一つあるのは、p. 53 の表2.1.1ですが、４件目までであとは省略されています。
+この表２は、性別と血液型という、因子の要素が２つあります。
+
+そこで、p. 55 の保健室のデータをちょっと改良したものを用意しました。
+エクセルファイルは `とうけい4きゅう.xlsx` で、シートは `p55-raw` です。
+
+```{r}
+library(readxl)
+dfInjury <- read_excel("とうけい4きゅう.xlsx", sheet = "p55-raw")
+```
+
+`library(readxl)` で、パッケージ `readxl` を読み込んでいます。
+
+`read_excel()` 関数では、デフォルトフォルダにある  `とうけい4きゅう.xlsx` を読み込んでいます。
+シートは、`sheet = "p55-raw"` で指定しています。
+
+`dfInjury <- read_excel(...)` とすることで、`read_excel()` 関数で読み込んだものを、`dfInjury` というデータフレームに格納しています。
+
+今回のデータは、今までとかなり様子が違います。
+実は、被験者一人ひとりの生データとなっています。
+
+```{r}
+dfInjury$りゆう <- factor(dfInjury$りゆう)
+dfInjury$せいべつ <- factor(dfInjury$せいべつ)
+```
+
+`りゆう` と `せいべつ` が因子であるので、因子に変更しました。
+
+`dfInjury$りゆう` とは、`dfInjury` の要因（エクセルで言う列）です。
+`factor()` 関数を使い、`りゆう` 要因を因子に変換し、また `りゆう` に格納しなおしています。
+
+次の `せいべつ` も同様です。
+
+では、ひとまず `りゆう` 列だけで棒グラフを作図してみましょう。
+
+```{r eval=F}
+ggplot(dfInjury, aes(x = りゆう)) +
+  geom_bar() 
+```
+```{r echo=F}
+ggplot(dfInjury, aes(x = りゆう)) +
+  geom_bar() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+これは、一見すると第２章棒グラフの時と同じように作図したように見えます。
+
+第２章のソースコードは以下のようでした。
+`x` だけでなく、 `y` も指定しています。また、`geom_bar()` 関数には、意味がよくわからない引数を設定していました。
+
+```{r eval = F}
+ggplot(dfKentei4, aes(x = やま, y = たさか)) +
+  geom_bar(stat = "identity")
+```
+
+実は、`ggplot()` 関数は、デフォルトは`y` は `x` の件数とするのです。第２章では、デフォルトではない方法であったため、引数 `y` と引数 `stat = "identity"` を設定していたのです。
+
+## 帯グラフの作図
+
+では、いよいよ帯グラフを描きましょう。
+まず、引数 `x` には性別を設定します。
+引数 `y` は、件数を数えるため、設定しません。
+ここで新たに、`fill` という引数を設定します。
+これが、帯の模様を作る要因になります。
+
+```{r echo=F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+```{r eval=F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar()
+```
+
+おや、これでは件数をそのまま積み上げており、比率を求めたことになりません。
+帯グラフにするためには、 `geom_bar()` 関数 に、`position = "fill"` という引数を与えます。
+
+```{r eval=F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill")
+```
+```{r echo=F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill") +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+ここで、ちょっと分かりにくいのは、`ggplot()` 関数の中の `fill` は引数ですが、`geom_bar()` 関数に与えている "fill" は、文字列なのでクォーテーションマークで囲っています。
+
+縦棒ではなく、横棒にしましょう。
+`coord_flip()` という関数を追加します。
+
+```{r eval = F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill") +
+  coord_flip()
+```
+```{r echo = F}
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+関数
+
+* `coord_flip()`: x 軸と y 軸を入れ替えて表示させます。
+
+色がどぎついままですね。色については、R では科学ジャーナルに応じた色パレットを提供するパッケージがあります。
+パッケージ名は `ggsci` です。このパッケージには、Lancet 風の色にする `scale_fill_lancet()` や、 JAMA 風にする `scale_fill_jama()` 関数があります。
+
+```{r eval=F}
+library(ggsci)
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  scale_fill_jama()
+```
+```{r echo=F}
+library(ggsci)
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  scale_fill_jama() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+最終的には、以下のようにしてみました。
+
+```{r eval=F}
+library(ggsci)
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill", width = 0.5) +
+  coord_flip() +
+  scale_fill_jama(name = "理由") +
+  ggtitle("保健室を利用した理由") +
+  xlab("性別") + ylab("割合") +
+  scale_x_discrete(labels = c("女子", "男子"))
+```
+```{r warning=F, echo=F}
+library(ggsci)
+ggplot(dfInjury, aes(x = せいべつ, fill = りゆう)) +
+  geom_bar(position = "fill", width = 0.5) +
+  coord_flip() +
+  scale_fill_jama(name = "理由") +
+  ggtitle("保健室を利用した理由") +
+  xlab("性別") + ylab("割合") +
+  scale_x_discrete(labels = c("女子", "男子")) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+つまづきポイント
+
+macOS の場合、この図の日本語部分が文字化けし、四角が並んでいるかと思われます。
+ネットなどでは、豆腐と呼ばれています。
+これは、フォントを適切に設定することで日本語が表示されます。
+
+フォントを設定するには、最後の行に `+` 記号を追加し、
+`theme_grey()` 関数などでフォントファミリーを設定します。
+
+```{r eval=F}
+scale_fill_discrete(name = "理由") +
+theme_grey(base_family = "HiraginoSans-W3")
+```
+</div>
+
+## まとめ
+
+* 帯グラフ、円グラフは割合を示しますが、表で数値を示すだけのこともあります。
+* 集計データではなく、生データから図を作成することを学びました。
+* カラーパレットを使って、色の組み合わせを変えてみました。

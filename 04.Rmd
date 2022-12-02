@@ -1,0 +1,269 @@
+# データ型 {#ch04}
+
+## 数値、文字
+
+データには、数字型、文字型などの型があります。
+
+数字型は、厳密には整数 (integer)、実数 (numeric) などがあります。文字型は character といいます。このほか、`TRUE` (「はい」の意味) と `FALSE` (「いいえ」の意味) だけからなる論理型 (logical) があります。
+
+実は、R の「型」はちょっと厄介です。
+そこで、今日はデータの mode として、numeric と character、データの class として factor を学びます。
+この factor の日本語訳が、因子です（心理学などで使われる「因子分析」があるので、言葉の誤解を避けるためにファクタと書かれる時もあります）
+
+```{r}
+library(readxl)
+dfKentei4 <- read_excel("とうけい4きゅう.xlsx")
+
+mode(dfKentei4$やま)
+```
+
+`やま` 列は、文字型 (character) と認識されていることがわかります。
+
+```{r}
+mode(dfKentei4$たかさ)
+```
+
+`たかさ` 列は数値型 (numeric) であることが分かります。
+
+また、これは RStudio の Environment ペインの Data でも確認することができます。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/5-1.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  annotate("rect",xmin=7.1,xmax=7.5,ymin=5.6,ymax=6, alpha=.3, fill="red") +
+  annotate("text", x = 7.9, y = 5.2, col = "red", label = "ここをクリック", family="HiraKakuProN-W3") +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/5-2.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+先週見たグラフでは、山の並び方が、文字としてあいうえお順になっているものと思われます。
+そこで、文字ではなく因子 (factor) として、順序を決定してみます。
+
+```{r}
+dfKentei4$やま <- factor(dfKentei4$やま, 
+  levels =  c("エベレスト",
+  "ゴドウィンオースチン",
+  "カンチェンジュンガ",
+  "ローツェ",
+  "マカルウ",
+  "富士山"))
+```
+
+関数
+
+* `factor()`: 数値型や文字型を因子型に変換する。
+  * levels: 因子の順序を指定する引数。
+
+Environment ペインの Data で `dfKentei4` を確認してみましょう。
+
+```{r include=F}
+img <- qplot(1:10, 1:10, geom="blank") +
+  xlim(c(0,10)) + ylim(c(0,10)) +
+  annotation_custom(rasterGrob(image_read("screenshot/5-3.png"), interpolate=TRUE), xmin=0, xmax=10, ymin=0, ymax=10) +
+  theme_void()
+```
+```{r echo=F, warning=F, out.width="80%", fig.align="center", dpi=300}
+img
+```
+
+`やま` 列が、因子 (factor) になっていることがわかります。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(
+    limits=c(0,2000,4000,6000,8000,10000),
+    labels=c("0","2,000","4,000","6,000","8,000","10,000"))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(
+    limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000),
+    labels=c("0","1,000","2,000","3,000","4,000","5,000","6,000","7,000","8,000","9,000","10,000")) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+これで、並べ方は `やま` 列の因子の順序通りに表示することができました。
+
+## 因子
+
+因子 (factor) とは、統計検定４級テキストでは「質的データ」と説明されています（テキスト p. 53）。
+質的データの例としては、性別、血液型、趣味などがあります。
+
+今回因子型とした山の名称は、厳密には質的データというものではないかもしれません。
+しかし、ここでは並べ替えを行うために、因子型としました。
+
+実際の研究では、例えば性別などは、以下のようにすることがあると思われます。
+
+* 1: 男性, 2: 女性
+* 0: 男性, 1: 女性
+* 男: 男性, 女: 女性
+* M: 男性, F: 女性
+
+どのようにしても R では因子 (factor) として認識されれば、因子として扱ってくれます。
+
+<div style="background: #cff; border-radius: 25px; padding: 5px;">
+つまづきポイント
+
+数値や文字は mode です、一方、因子は class です。R では、データ型として、type, mode, class があります。
+とても分かりづらいので、最初のうちはあまり気にしないほうが良いでしょう。
+</div>
+
+## ひどいデータ
+
+実際には、ひどいデータにしょっちゅう出くわします。
+例えば、男性は M、女性は F とコード化したとしましょう。
+
+今回、同じファイルの別シートを読み込みます。
+エクセルで、先日ダウンロードしたファイルを開くとわかりますが、複数のシートがあります。
+
+シートを指定してエクセルファイルを開くことを、ソースコードで書くと次のようになります。
+
+いままで使っていた `read_excel()` 関数に、`sheet` という引数を追加しています。
+データフレーム `dfKentei4Dirty` を確認してみてください。
+
+<div style="display:inline-block;width:48%;vertical-align:top;">
+
+```{r}
+library(readxl)
+dfKentei4Dirty <- read_excel("とうけい4きゅう.xlsx", 
+  sheet = "bad-factor-sample")
+```
+
+データの中身を見てみましょう。
+
+</div><div style="display:inline-block;width:10%;vertical-align:top;">
+</div><div style="display:inline-block;width:38%;vertical-align:top;">
+
+```{r echo=F}
+kable(dfKentei4Dirty)
+```
+
+</div>
+
+英語で男性は Male、女性は Female なので、M と F が使われています。
+そのほかに、数字でコード化もされています。
+詳しく見てみると、大文字、小文字、さらには半角と全角が入り混じっています。
+これを因子にしてみるとよくわかります。
+
+```{r}
+dfKentei4Dirty$せいべつ1 <- factor(dfKentei4Dirty$せいべつ)
+```
+
+８つも水準があります。
+どうにか、M と F だけにしたいので、`stringi` パッケージの `stri_trans_nfkc()` 関数と、base パッケージの `toupper()` 関数を使ってみます。
+
+```{r}
+library(stringi)
+dfKentei4Dirty$せいべつ2 <- factor(
+  toupper(
+    stri_trans_nfkc(dfKentei4Dirty$せいべつ)), 
+  levels = c("M", "F"))
+```
+
+関数
+
+* `stri_trans_nfkc()`: stringi パッケージの関数。日本語全角のアルファベットを、半角のアルファベットに変換する。
+* `toupper()`: 英語の小文字 (lower) を大文字 (upper) に変換する。
+* `factor()`: 文字型や数値型を因子型に変換する。
+  * 引数 `levels`: `factor()` 関数の引数で、因子の順序を指定する。
+
+
+上のプログラムは、データフレーム列 `dfKentei4Dirty$Sex` を、まず `stri_trans_nfkc()`  で半角アルファベットに変換 し、次に `toupper()` で小文字を大文字に変換 し、最後に `factor()` で因子型に変換しています。
+
+このように、ひどいデータを修正する作業を、データのクリーニングなどといいます。こういった処理に特化したパッケージもありますが、日本語にうまく対応しているのは内容なので、今のところ上記のコードが一番よさそうです。
+
+## 欠損値
+
+もし、エクセルファイルのデータに不備があるとどうなるでしょうか？
+
+まず、データが欠損している場合を試してみます。
+
+```{r}
+library(readxl)
+dfKentei4NA <- read_excel("とうけい4きゅう.xlsx", sheet = "p12NA")
+```
+
+エクセルデータの別のシートを読み込み、新たにデータフレーム `dfKentei4NA` を作成しました。
+
+```{r echo=F}
+kable(dfKentei4NA)
+```
+
+ところどころ NA と表示されています。これはデータがない状態で、欠損値や欠測値などと言います。
+
+このデータフレームを使って、棒グラフを作ってみましょう。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfKentei4NA, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(
+    limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000),
+    labels=c("0","1,000","2,000","3,000","4,000","5,000","6,000","7,000","8,000","9,000","10,000"))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfKentei4NA, aes(x = やま, y = たかさ)) +
+  geom_bar(stat = "identity", width = 0.4, fill = "blue") +
+  scale_y_discrete(limits=c(0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000),
+                   labels=c("0","1,000","2,000","3,000","4,000","5,000","6,000","7,000","8,000","9,000","10,000"))  +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+
+このように、欠損していながらもなんとか表示はされます。
+
+ところが、演算を行おうとすると、途端に問題が生じます。
+一例として、標高の平均値を求めてみましょう。
+平均値とは、データの総和をデータの個数で割ったものです。
+平均値は、英語では average と mean という二つの語がありますが、R では、mean の方を使って `mean()` という関数になります。
+
+```{r}
+mean(dfKentei4NA$たかさ)
+```
+
+このように、一つでも欠損値 (NA) があると、平均値も NA となってしまいます。
+
+欠損値については、統計検定４級テキストには何の記述もありません。
+欠損値がある場合には、欠損値のあるデータを削除 (omit) する方法があります。
+`na.omit()` という関数を使う方法です。
+
+```{r}
+dfKentei4NA <- na.omit(dfKentei4NA)
+```
+
+関数
+
+* `na.omit()`: データフレームの中で NA がある行を削除して、残ったデータフレームを返します。
+
+これで、NA があった行がすべて削除されたデータフレームとして `dfKentei4NA` が作られました。
+この平均値を求めてみましょう。
+
+```{r}
+mean(dfKentei4NA$たかさ)
+```
+
+ひとまず、なにか問題が起こったらデータフレーム中に欠損値がないか確認して見ましょう。
+
+## まとめ
+
+* データの mode として、数値 (numeric)、文字列 (character) などがあることを学びました。
+* データの class として、因子 (factor) があることを学びました。
+* データが綺麗か綺麗でないかを判断する方法を学びました。

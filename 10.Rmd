@@ -1,0 +1,192 @@
+# ヒストグラムと箱ひげ図 {#ch10}
+
+統計検定４級テキスト p. 116 に説明されている、「科学の道具箱」のサイトから、「01.小・中学校体力測定データ」をダウンロードします。
+
+```{r eval=F}
+library(curl)
+curl_download(
+  "https://rika-net.com/contents/cp0530/contents/data/04-03-01.xls", 
+  "tairyoku.xls")
+```
+
+<div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+これを読み込んで、`dfTairyoku` というデータフレームを作成します。
+
+```{r}
+library(readxl)
+dfTairyoku <- read_excel("tairyoku.xls")
+```
+
+データを確認して見ましょう。
+
+</div><div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+```{r echo=F, warning=F}
+kable(dfTairyoku[1:5, 1:5])
+```
+
+</div>
+
+## ヒストグラム
+
+まず、`学校`列を因子型に変換しておきましょう。
+
+```{r}
+dfTairyoku$`学校` <- factor(dfTairyoku$`学校`)
+```
+
+では、`ggplot2` を使って、ヒストグラムを描いてみましょう。
+日本語の列名は、バッククォートで囲むことで使うことができます。
+
+```{r echo=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = `50m走(秒)`)) +
+  geom_histogram() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+```{r eval=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = `50m走(秒)`)) +
+  geom_histogram()
+```
+
+## 箱ひげ図
+
+次に箱ひげ図 (box-whisker plot) を描いてみます。
+箱ひげ図は、英語では box-whisker ですが、関数名は `geom_box()` です。
+
+なお、統計検定４級テキスト p. 117 では、「学校」列で層別化 (strata) しています。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = `学校`, y = `50m走(秒)`)) +
+  geom_boxplot()
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = `学校`, y = `50m走(秒)`)) +
+  geom_boxplot() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+p. 118 の図2.3.30 のように、並べて表示するためには、データを Long 形式にしなければなりません。
+
+<div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+```{r}
+library(tidyr)
+dfTairyokuLong <- pivot_longer(dfTairyoku,
+    cols = c(`握力(左)(kg)`, `握力(右)(kg)`),
+    names_to = "Hand",
+    values_to = "Handgrip")
+```
+
+これで、データが Long になっています。
+データを確認してみましょう。
+
+</div><div style="display:inline-block;width:48%;vertical-align:top;font-size:0.8em;">
+
+```{r echo=F}
+kable(dfTairyokuLong[1:5, 1:5])
+```
+
+</div>
+
+それでは、いよいよ図を作成します。
+引数 `x` には学校 (`学校`列)、`y` には握力 (`Handgrip`列) です。
+左手と右手を並べるため、`fill` 引数に `Hand` 列を指定します。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfTairyokuLong, aes(x = 学校, y = Handgrip, fill = Hand)) +
+  geom_boxplot(width = 0.4)
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfTairyokuLong, aes(x = 学校, y = Handgrip, fill = Hand)) +
+  geom_boxplot(width = 0.4) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+統計検定４級テキスト p. 118 の図2.3.30では、平均値も追加しています。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfTairyokuLong, aes(x = 学校, y = Handgrip, fill = Hand)) +
+  geom_boxplot(width = 0.4) +
+  stat_summary(fun.y=mean, geom="point", shape=4, size=3, color="black",
+    position = position_dodge2(width = 0.4, preserve = "single"))
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfTairyokuLong, aes(x = 学校, y = Handgrip, fill = Hand)) +
+  geom_boxplot(width = 0.4) +
+  stat_summary(fun.y=mean, geom="point", shape=4, size=3, color="black",
+             position = position_dodge2(width = 0.4, preserve = "single")) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+今まで使ったことがない関数がありますね。
+
+関数
+
+* `stat_summary()`: 平均値などの統計データを返します。
+  * fun.y: 平均値、中央値などを指定することができます。
+  * geom: 点、線などを指定します。
+  * shape: 点の形状です。１が丸、４がバツ印などです。
+  * size: 大きさを指定します。
+  * position: 位置を指定します。ここでは二つの項目をずらし (dodge) ました。
+
+## 散布図
+
+統計検定４級テキスト p. 118 には、散布図(図2.3.31)があります。
+これを作図してみましょう。
+
+使用するのは、これまでと同じく `ggplot2` パッケージです。
+点を追加するので、`geom_point()` 関数を追加します。
+
+相関の高そうな、握力の右と左を使ってみましょう。
+なお、データフレームは Wide 形式の方を使っています。
+
+```{r eval=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = dfTairyoku$`握力(右)(kg)` , dfTairyoku$`握力(左)(kg)`)) +
+  geom_point()
+```
+```{r echo=F}
+library(ggplot2)
+ggplot(dfTairyoku, aes(x = dfTairyoku$`握力(右)(kg)` , dfTairyoku$`握力(左)(kg)`)) +
+  geom_point() +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+## 散布図行列
+
+統計検定４級テキスト p. 119 には、散布図がたくさんまとまった図（図2.3.32）があります。
+これを作図してみましょう。
+
+使用するのは、`GGally` パッケージにある `ggpairs()` という関数です。
+すべての列を使用すると多すぎるので、第４列(`握力(右)(kg)`)から第７列(`長座体前屈(cm)`)までを指定します。
+
+```{r eval=F}
+library(GGally)
+ggpairs(dfTairyoku,
+        columns = c(4, 5, 6, 7))
+```
+```{r echo=F}
+library(GGally)
+ggpairs(dfTairyoku,
+        columns = c(4, 5, 6, 7)) +
+  theme_bw(base_family = "Hiragino Kaku Gothic Pro W3")
+```
+
+相関図に加えて、相関係数も表示されています。
+
+今日はここまでとします。
+
+## まとめ
+
+* ヒストグラムと箱ひげ図を描きました。
+* ヒストグラムと箱ひげ図は、量的データのばらつきを表すことを確認しました。
+* 散布図と散布図行列を作図してみました。
